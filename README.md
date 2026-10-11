@@ -6,7 +6,7 @@ This project is a hands-on simulation of an AWS-based Customer Support Analyst /
 
 * **Remote Issue Resolution & VPNs:** Configured and utilized AWS Client VPN (Mutual TLS) and Systems Manager (SSM) Session Manager to securely access remote servers and diagnose faults internally.
 * **Fault Diagnosis & Log Analysis:** Queried and interpreted application logs using Amazon CloudWatch Logs Insights to isolate complex network configuration issues from application-level failures.
-* **Archiving & Restoring Data:** Executed point-in-time recovery using AWS Backup, restoring corrupted/missing customer data onto replacement EC2 instances and verifying state integrity.
+* **Archiving & Restoring Data:** Ran an on-demand restore from an AWS Backup recovery point onto a replacement EC2 instance and checked the restored data directly.
 * **Technical Documentation & KBs:** Translated complex technical findings into usable site manuals and Knowledge Base articles to share best practices across the support team.
 * **Customer-Facing Communication:** Drafted empathetic, non-jargon status updates to keep external customers informed during service disruptions, demonstrating tact and excellent interpersonal skills.
 
@@ -23,7 +23,15 @@ A critical customer data record was deleted, requiring rapid response. A manual 
 - **Observability:** Amazon CloudWatch Logs Insights, CloudWatch Agent
 - **Data Protection:** AWS Backup (Vaults, Plans, Recovery Points, On-Demand Restores)
 - **Compute:** AWS EC2 (Amazon Linux 2023)
-- **Security:** AWS IAM (Strict Least-Privilege Scoped Policies)
+- **Security:** AWS IAM with two personas: an owner user that builds the environment and a scoped, non-admin support-analyst user (an attempt to create an access key as that user was denied)
+- **Infrastructure as Code:** Terraform (`infra/`) provisions the EC2 instance, security group, IAM roles, CloudWatch log group and AWS Backup plan
+
+## Environment Notes
+
+* One `t3.micro` Amazon Linux 2023 instance running a minimal Flask app in the **default VPC** of `us-east-1`. It has a public IP, and its security group allows TCP 5000 from anywhere, so this is a support-workflow simulation rather than a hardened network design.
+* There is no SSH access path and no bastion host: the analyst reaches the instance through SSM Session Manager, or over AWS Client VPN (mutual-TLS certificates issued with Easy-RSA) to its private IP.
+* Application logs (`access.log`) are shipped to CloudWatch Logs by the CloudWatch Agent. Session Manager session logging is not configured.
+* Two incidents were simulated, one per scenario above.
 
 ## Visual Evidence & Screenshots
 
